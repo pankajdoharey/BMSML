@@ -72,6 +72,8 @@ Object *make_symbol(char *ch){
     Array a;
     Array *Arry = create_array(&a, 5, Symbol);
 
+    printf("%c", *ch);
+
     while( isalnum(*ch) || ispunct(*ch) ){
         insert_into_array(Arry, *ch);
         tok = ++ch;
@@ -83,7 +85,7 @@ Object *make_symbol(char *ch){
 Object *make_quote(char *ch){
     tok = ++ch;
     Object *car = createQuote();
-    return cons(car, parse(tok));
+    return cons(car, read(tok));
 }
 
 
@@ -94,9 +96,9 @@ Object *make_list(char *ch){
         tok = ++ch;
     }
 
-    if(*ch == ')') return cons(nullObject() , parse(++ch));
+    if(*ch == ')') return cons(nullObject() , read(++ch));
 
-    Object *car = parse(ch);
+    Object *car = read(ch);
 
     while(*ch == ' '){
         tok = ++ch;
@@ -108,31 +110,16 @@ Object *make_list(char *ch){
 }
 
 //Generates AST.
-Object *parse(char* ch){
+Object *read(char* ch){
     tok = ch;
 
-    while(*ch == ' '){
-        tok = ++ch;
+    while(*ch != ')'){
+      printf("%s", ch);
+      ++ch;
     }
 
-    //Return NIL if ')' or EOF is encountered.
-    if(*ch == ')' || *ch == '\0') return createNIL();
+    return 0;
 
-    if( isdigit(*ch)){
-        return make_number(ch);
-    }else if( *ch  == '#' ){
-        return make_boolean(ch);
-    }else if(*ch == '"'){
-        return make_string(ch);
-    }else if(*ch == '('){
-        return make_list(ch);
-    }else if(*ch == '\''){
-        return make_quote(ch);
-    }else if( isalnum(*ch) || ispunct(*ch) ){
-        return make_symbol(ch);
-    }else{
-        return parse(++ch);
-    }
 }
 
 //Evaluation Code.
@@ -145,14 +132,14 @@ void print(Object *result){
     switch(result->type){
 
     case Integer  :
-        printf("%ld ", result->Val.integer); break;
+        printf("Integer %ld \n", result->Val.integer);print(CDR(result)); break;
     case Fraction :
-        printf("%lf ", result->Val.fraction);break;
+        printf("Float %lf \n", result->Val.fraction);print(CDR(result));break;
     case Boolean  :
-        result->Val.boolean ? puts("T") : puts("F");break;
-    case String   : printf("%s", result->Val.string); break;
+        result->Val.boolean ? puts("#T") : puts("#F");break;
+    case String   : printf("String %s \n", result->Val.string);print(CDR(result));break;
     case Cons     : print(CAR(result));print(CDR(result));break;
-    case Symbol   : printf("%s", result->Val.symbol); break;
+    case Symbol   : printf("Symbol %s \n", result->Val.symbol);break;
     case NIL:
         if(CAR(result) && CDR(result)){
             if(CAR(result)->type == NIL && CDR(result)->type == NIL)

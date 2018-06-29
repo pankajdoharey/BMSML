@@ -3,7 +3,7 @@
 #include <string.h>
 #include "primitive.h"
 
-Object *parse(char* input);
+Object *read(char* input);
 
 char *type_of_token(Type t){
     char *type;

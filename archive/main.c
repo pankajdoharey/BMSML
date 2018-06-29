@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
             break;
         }else{
             cprint("⇒ ", BASH_RED);
-            print(eval(parse(line)));
+            print(eval(read(line)));
 
         }
         //add the expression to history and increment prompt
